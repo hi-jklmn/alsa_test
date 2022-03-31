@@ -72,10 +72,13 @@ int main() {
     char buf[BUF_SIZE];
     size_t bytes_left = fmt_desc.num_samples * fmt_desc.num_channels *
                         fmt_desc.bytes_per_sample;
+    size_t frame_size = fmt_desc.num_channels * fmt_desc.bytes_per_sample;
     char *playhead = (char *)wav_data;
 
+    size_t frames_in_a_buf = BUF_SIZE / frame_size;
+
     while (1) {
-        size_t nbytes = BUF_SIZE < bytes_left ? BUF_SIZE : bytes_left;
+        size_t nbytes = (frames_in_a_buf * frame_size) < bytes_left ? (frames_in_a_buf * frame_size) : bytes_left;
 
         if (nbytes <= 0) break;
 
@@ -84,7 +87,7 @@ int main() {
         bytes_left -= nbytes;
 
         // write interleaved samples
-        if (snd_pcm_writei(playback_handle, buf, nbytes) != nbytes) {
+        if (snd_pcm_writei(playback_handle, buf, nbytes / frame_size) != nbytes / frame_size) {
             fprintf(stderr, "write to audio interface failed\n");
             snd_pcm_prepare(playback_handle);
         }
