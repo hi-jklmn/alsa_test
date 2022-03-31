@@ -32,29 +32,29 @@ void set_hw_params(snd_pcm_t *playback_handle, snd_pcm_access_t pcm_access_type,
                                           pcm_format_type));
     ALSA_TRY(snd_pcm_hw_params_set_rate(playback_handle, hardware_params,
                                         sample_rate, 0));
-    ALSA_TRY(
-        snd_pcm_hw_params_set_channels(playback_handle, hardware_params, 2));
+    ALSA_TRY(snd_pcm_hw_params_set_channels(playback_handle, hardware_params,
+                                            num_channels));
     ALSA_TRY(snd_pcm_hw_params(playback_handle, hardware_params));
 
     // Free hardware_params
     snd_pcm_hw_params_free(hardware_params);
 }
 
-#define AUDIO_FILE "Noise.wav"
+#define AUDIO_FILE "test_audio/schreibmaschine.wav"
 #define AUDIO_DEVICE "default"
 #define ACCESS_TYPE SND_PCM_ACCESS_RW_INTERLEAVED
 #define FORMAT_TYPE SND_PCM_FORMAT_S16_LE
-#define BUF_SIZE 512
+#define BUF_SIZE 256
 
 int main() {
     FILE *file = fopen(AUDIO_FILE, "r");
 
-    assert(file != NULL && "Can't open " AUDIO_FILE " for reading");
+    assert(file != NULL && "Can't open file for reading");
 
     wav_fmt_desc fmt_desc;
     void *wav_data = wav_load_data(file, &fmt_desc);
 
-    assert(wav_data != NULL && "Can't open " AUDIO_FILE " for reading");
+    assert(wav_data != NULL && "Failed to read wave data from file");
 
     assert(fmt_desc.wav_format == WAVE_FORMAT_PCM);
 
